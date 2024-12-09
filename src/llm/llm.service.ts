@@ -1,12 +1,20 @@
 import OpenAI from 'openai';
+import { Injectable } from '@nestjs/common';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
+@Injectable()
 export class LlmService {
+  private openai: OpenAI;
+
+  constructor() {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('A key da openAi está em falta');
+    }
+    this.openai = new OpenAI({ apiKey });
+  }
+
   async askQuestion(prompt: string): Promise<string> {
-    const response = await openai.chat.completions.create({
+    const response = await this.openai.chat.completions.create({
       model: 'gpt-4',
       messages: [{ role: 'user', content: prompt }],
     });

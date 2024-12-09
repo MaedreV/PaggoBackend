@@ -6,12 +6,14 @@ import { PrismaService } from '../prisma/prisma.service';
 @Injectable()
 export class AuthService {
   constructor(
-    private jwtService: JwtService,
+    private jwtService: JwtService, // serviço para gerar tokens JWT
     private prisma: PrismaService,
   ) {}
 
   async validateUser(email: string, password: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
+    console.log('Usario do banco:', user); 
+     // verifica se a senha informada corresponde a senha criptografada
     if (user && (await bcrypt.compare(password, user.password))) {
       return user;
     }
@@ -31,4 +33,5 @@ export class AuthService {
       data: { email, password: hashedPassword },
     });
   }
+
 }

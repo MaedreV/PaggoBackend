@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Request, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Request, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -7,11 +7,17 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() body: { email: string; password: string }) {
+      // valida as credenciais do usuário
     const user = await this.authService.validateUser(body.email, body.password);
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new HttpException('Dados invalidos', HttpStatus.UNAUTHORIZED);  
     }
-    return this.authService.login(user);
+    // gera e retorna o token JWT para autenticação dps
+    const accessToken = this.authService.login(user);
+  return {
+    token: (await accessToken).access_token,  
+    user: user.email,
+  };
   }
 
   @Post('register')
